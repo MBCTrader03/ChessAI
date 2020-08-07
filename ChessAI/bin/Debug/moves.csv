@@ -1,0 +1,8 @@
+king,1/0,1/1,0/1,-1/1,-1/0,-1/-1,0/-1,1/-1
+queen,x/0,x/x,0/x,-x/x,-x/0,-x/-x,0/-x,x/-x
+rook,x/0,0/x,-x/0,0/-x
+bishop,x/x,-x/x,-x/-x,x/-x
+knight,2/1,1/2,-1/2,-2/1,-2/-1,-1/-2,1/-2,2/-1
+pawn,1/0
+pawn.hasntmoved,2/0
+pawn.take,1/-1,1/1
