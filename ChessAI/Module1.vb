@@ -1,4 +1,4 @@
-﻿Imports System.IO
+Imports System.IO
 Imports ChessAI.Chess
 
 Namespace Chess
@@ -34,24 +34,18 @@ Namespace Chess
             Next
             Return Symbols
         End Function
-        Public Function Click(X As Integer, Y As Integer) As List(Of Integer())
+        Public Sub Click(X As Integer, Y As Integer)
             If Me.SquareSelected = False Then
                 Me.SquareSelected = True
                 Me.LastClickedX = X
                 Me.LastClickedY = Y
                 Dim Target As New List(Of Integer())
                 Target = Me.Squares(X, Y).SelectSquare()
-                Return Target
+                Form1.Target(Target)
             Else
                 Me.SquareSelected = False
-                Dim NullTarget As New List(Of Integer())
-                Dim NullArr(2) As Integer
-                NullArr(0) = 8
-                NullArr(1) = 8
-                NullTarget.Add(NullArr)
-                Return NullTarget
             End If
-        End Function
+        End Sub
         Public Function GetSelectedStatus() As Boolean
             Return Me.SquareSelected
         End Function
@@ -78,65 +72,56 @@ Namespace Chess
                 Dim Type As String = Me.Occupier.GetPieceType()
                 Dim HasMoved As Boolean = Me.Occupier.GetHasMoved()
                 Dim Target As New List(Of Integer())
-                Dim Instructions As String = ""
-                Using sReader As New StreamReader("moves.csv")
-                    Dim line As String = sReader.ReadLine()
-                    While Not line Is Nothing
-                        If line.Split(",")(0) = Type Then
-                            Instructions = line
-                        End If
-                        line = sReader.ReadLine()
-                    End While
-                End Using
-                Dim Instructions1 As String() = Instructions.Split(",")
-                Dim Instructions2(Instructions1.Length - 1)() As String
-                Dim InstConv(2) As String
-                For i = 1 To Instructions1.Length - 1
-                    InstConv = Instructions1(i).Split("/")
-                    Instructions2(i - 1)(0) = InstConv(0)
-                    Instructions2(i - 1)(1) = InstConv(1)
-                Next
                 Dim PosArr(2) As Integer
-                If Instructions2(0)(0) = "x" Then
-                    Dim ArrX As String
-                    Dim ArrY As String
-                    For i = 0 To Instructions2.Length - 1
-                        For k = 0 To 7
-                            ArrX = ""
-                            ArrY = ""
-                            For j = 0 To Instructions2(i)(0).Length - 1
-                                If Instructions2(i)(0)(j) = "x" Then
-                                    ArrX += k.ToString
-                                Else
-                                    ArrX += Instructions2(i)(0)(j)
-                                End If
-                            Next
-                            For j = 0 To Instructions2(i)(1).Length - 1
-                                If Instructions2(i)(1)(j) = "x" Then
-                                    ArrY += k.ToString
-                                Else
-                                    ArrY += Instructions2(i)(1)(j)
-                                End If
-                            Next
-                            If Owner = True Then
-                                PosArr(0) = Me.Row + CInt(ArrX)
-                                PosArr(1) = Me.Column + CInt(ArrY)
-                            Else
-                                PosArr(0) = Me.Row - CInt(ArrX)
-                                PosArr(1) = Me.Column - CInt(ArrY)
-                            End If
-                            Target.Add(PosArr)
-                        Next
+                If Type = "king" Then
+                    For i = 0 To 7
+                        PosArr(0) = Me.Row + Module1.moves.King(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.King(i, 1)
+                        Target.Add(PosArr)
                     Next
-                Else
-                    For i = 0 To Instructions2.Length - 1
-                        If Owner = True Then
-                            PosArr(0) = Me.Row + CInt(Instructions2(i)(0))
-                            PosArr(1) = Me.Column + CInt(Instructions2(i)(1))
-                        Else
-                            PosArr(0) = Me.Row - CInt(Instructions2(i)(0))
-                            PosArr(1) = Me.Column - CInt(Instructions2(i)(1))
-                        End If
+                ElseIf Type = "queen" Then
+                    For i = 0 To 55
+                        PosArr(0) = Me.Row + Module1.moves.Queen(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.Queen(i, 1)
+                        Target.Add(PosArr)
+                    Next
+                ElseIf Type = "rook" Then
+                    For i = 0 To 27
+                        PosArr(0) = Me.Row + Module1.moves.Rook(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.Rook(i, 1)
+                        Target.Add(PosArr)
+                    Next
+                ElseIf Type = "bishop" Then
+                    For i = 0 To 27
+                        PosArr(0) = Me.Row + Module1.moves.Bishop(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.Bishop(i, 1)
+                        Target.Add(PosArr)
+                    Next
+                ElseIf Type = "knight" Then
+                    For i = 0 To 7
+                        PosArr(0) = Me.Row + Module1.moves.Knight(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.Knight(i, 1)
+                        Target.Add(PosArr)
+                    Next
+                ElseIf Type = "pawn" And Owner = True And HasMoved = True Then
+                    PosArr(0) = Me.Row + Module1.moves.WhitePawn(0)
+                    PosArr(1) = Me.Column + Module1.moves.WhitePawn(1)
+                    Target.Add(PosArr)
+                ElseIf Type = "pawn" And Owner = False And HasMoved = True Then
+                    PosArr(0) = Me.Row + Module1.moves.BlackPawn(0)
+                    PosArr(1) = Me.Column + Module1.moves.BlackPawn(1)
+                    Target.Add(PosArr)
+                ElseIf Type = "pawn" And Owner = True And HasMoved = False Then
+                    For i = 0 To 1
+                        PosArr(0) = Me.Row + Module1.moves.UnmovedWhitePawn(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.UnmovedWhitePawn(i, 1)
+                        Target.Add(PosArr)
+                    Next
+                ElseIf Type = "pawn" And Owner = True And HasMoved = False Then
+
+                    For i = 0 To 1
+                        PosArr(0) = Me.Row + Module1.moves.UnmovedBlackPawn(i, 0)
+                        PosArr(1) = Me.Column + Module1.moves.UnmovedBlackPawn(i, 1)
                         Target.Add(PosArr)
                     Next
                 End If
@@ -213,7 +198,132 @@ Namespace Chess
             Return Me.HasMoved
         End Function
     End Class
+    Public Class Moves
+        Public King(8, 2) As Integer
+        Public Queen(56, 2) As Integer
+        Public Rook(28, 2) As Integer
+        Public Bishop(28, 2) As Integer
+        Public Knight(8, 2) As Integer
+        Public WhitePawn(2) As Integer
+        Public BlackPawn(2) As Integer
+        Public UnmovedWhitePawn(2, 2) As Integer
+        Public UnmovedBlackPawn(2, 2) As Integer
+        Public WhitePawnTake(2, 2) As Integer
+        Public BlackPawnTake(2, 2) As Integer
+        Public Sub New()
+            Me.KingMoves()
+            Me.QueenMoves()
+            Me.RookMoves()
+            Me.BishopMoves()
+            Me.KnightMoves()
+            Me.PawnMoves()
+        End Sub
+        Public Sub KingMoves()
+            Me.King(0, 0) = 1
+            Me.King(0, 1) = 0
+            Me.King(1, 0) = 1
+            Me.King(1, 1) = 1
+            Me.King(2, 0) = 0
+            Me.King(2, 1) = 1
+            Me.King(3, 0) = -1
+            Me.King(3, 1) = 1
+            Me.King(4, 0) = -1
+            Me.King(4, 1) = 0
+            Me.King(5, 0) = -1
+            Me.King(5, 1) = -1
+            Me.King(6, 0) = 0
+            Me.King(6, 1) = -1
+            Me.King(7, 0) = 1
+            Me.King(7, 1) = -1
+        End Sub
+        Public Sub QueenMoves()
+            For i = 0 To 7
+                For j = 0 To 6
+                    For k = 0 To 1
+                        Me.Queen((7 * i) + j, k) = Me.King(i, k) * (j + 1)
+                    Next
+                Next
+            Next
+        End Sub
+        Public Sub RookMoves()
+            For i = 0 To 6
+                Me.Rook(i, 0) = i + 1
+                Me.Rook(i, 1) = 0
+            Next
+            For i = 0 To 6
+                Me.Rook(i + 7, 0) = 0
+                Me.Rook(i + 7, 1) = i + 1
+            Next
+            For i = 0 To 6
+                Me.Rook(i + 14, 0) = -1 - i
+                Me.Rook(i + 14, 1) = 0
+            Next
+            For i = 0 To 6
+                Me.Rook(i + 21, 0) = 0
+                Me.Rook(i + 21, 1) = -1 - i
+            Next
+        End Sub
+        Public Sub BishopMoves()
+            For i = 0 To 6
+                Me.Bishop(i, 0) = i + 1
+                Me.Bishop(i, 1) = i + 1
+            Next
+            For i = 0 To 6
+                Me.Bishop(i + 7, 0) = -1 - i
+                Me.Bishop(i + 7, 1) = i + 1
+            Next
+            For i = 0 To 6
+                Me.Bishop(i + 14, 0) = -1 - i
+                Me.Bishop(i + 14, 1) = -1 - i
+            Next
+            For i = 0 To 6
+                Me.Bishop(i + 21, 0) = i + 1
+                Me.Bishop(i + 21, 1) = -1 - i
+            Next
+        End Sub
+        Public Sub KnightMoves()
+            Me.Knight(0, 0) = 2
+            Me.Knight(0, 1) = 1
+            Me.Knight(1, 0) = 1
+            Me.Knight(1, 1) = 2
+            Me.Knight(2, 0) = -1
+            Me.Knight(2, 1) = 2
+            Me.Knight(3, 0) = -2
+            Me.Knight(3, 1) = 1
+            Me.Knight(4, 0) = -2
+            Me.Knight(4, 1) = -1
+            Me.Knight(5, 0) = -1
+            Me.Knight(5, 1) = -2
+            Me.Knight(6, 0) = 1
+            Me.Knight(6, 1) = -2
+            Me.Knight(7, 0) = 2
+            Me.Knight(7, 1) = -1
+        End Sub
+        Public Sub PawnMoves()
+            Me.WhitePawn(0) = 1
+            Me.WhitePawn(1) = 0
+            Me.BlackPawn(0) = -1
+            Me.BlackPawn(1) = 0
+            Me.UnmovedWhitePawn(0, 0) = 1
+            Me.UnmovedWhitePawn(0, 1) = 0
+            Me.UnmovedWhitePawn(1, 0) = 2
+            Me.UnmovedWhitePawn(1, 1) = 0
+            Me.UnmovedBlackPawn(0, 0) = -1
+            Me.UnmovedBlackPawn(0, 1) = 0
+            Me.UnmovedBlackPawn(1, 0) = -2
+            Me.UnmovedBlackPawn(1, 1) = 0
+            Me.WhitePawnTake(0, 0) = 1
+            Me.WhitePawnTake(0, 1) = 1
+            Me.WhitePawnTake(1, 0) = 1
+            Me.WhitePawnTake(1, 1) = -1
+            Me.BlackPawnTake(0, 0) = -1
+            Me.BlackPawnTake(0, 1) = -1
+            Me.BlackPawnTake(1, 0) = -1
+            Me.BlackPawnTake(1, 1) = 1
+        End Sub
+    End Class
 End Namespace
 Module Module1
-    Public board As New Board
+    Public moves As New Chess.Moves
+    Public board As New Chess.Board
 End Module
