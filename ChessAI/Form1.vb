@@ -1,4 +1,4 @@
-﻿Public Class Form1
+Public Class Form1
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Dim Symbols As String(,)
         Symbols = board.Initialise()
@@ -1168,5 +1168,154 @@
             GenerateBoard()
         End If
         board.Click(7, 7)
+    End Sub
+    Public Sub Target(Target As List(Of Integer()))
+        For i = 0 To Target.Count - 1
+            If Target.Item(i)(0) = 0 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel0_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel0_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel0_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel0_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel0_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel0_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel0_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel0_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 1 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel1_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel1_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel1_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel1_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel1_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel1_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel1_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel1_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 2 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel2_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel2_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel2_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel2_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel2_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel2_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel2_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel2_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 3 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel3_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel3_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel3_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel3_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel3_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel3_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel3_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel3_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 4 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel4_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel4_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel4_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel4_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel4_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel4_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel4_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel4_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 5 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel5_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel5_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel5_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel5_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel5_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel5_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel5_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel5_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 6 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel6_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel6_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel6_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel6_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel6_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel6_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel6_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel6_7.BackColor = MovePanel.BackColor
+                End If
+            ElseIf Target.Item(i)(0) = 7 Then
+                If Target.Item(i)(1) = 0 Then
+                    Panel7_0.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 1 Then
+                    Panel7_1.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 2 Then
+                    Panel7_2.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 3 Then
+                    Panel7_3.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 4 Then
+                    Panel7_4.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 5 Then
+                    Panel7_5.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 6 Then
+                    Panel7_6.BackColor = MovePanel.BackColor
+                ElseIf Target.Item(i)(1) = 7 Then
+                    Panel7_7.BackColor = MovePanel.BackColor
+                End If
+            End If
+        Next
     End Sub
 End Class
