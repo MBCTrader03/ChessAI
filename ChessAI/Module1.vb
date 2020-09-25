@@ -34,15 +34,18 @@ Namespace Chess
             Next
             Return Symbols
         End Function
-        Public Sub Click(X As Integer, Y As Integer)
-            If Me.SquareSelected = False Then
+        Public Sub Click(x As Integer, y As Integer)
+            If Me.SquareSelected = False And Me.Squares(x, y).GetOccupied() = True Then
                 Me.SquareSelected = True
-                Me.LastClickedX = X
-                Me.LastClickedY = Y
-                Dim Target As New List(Of Integer())
-                Target = Me.Squares(X, Y).SelectSquare()
-                Form1.Target(Target)
+                Me.LastClickedX = x
+                Me.LastClickedY = y
+                Dim Target As Integer(,)
+                Target = Me.Squares(x, y).SelectSquare()
+                For i = 0 To Target.GetLength(0) - 1
+                    Form1.Target({Target(i, 0), Target(i, 1)}, {x, y}, Me.Squares(x, y).GetPieceType(), Me.Squares(x, y).GetOwner())
+                Next
             Else
+                Form1.GenerateBoard()
                 Me.SquareSelected = False
             End If
         End Sub
@@ -56,84 +59,37 @@ Namespace Chess
         Private Row As Integer
         Private Column As Integer
         Public Sub New(i As Integer, j As Integer, InitialOccupier As String)
+            Me.Occupied = False
             Me.Row = i
             Me.Column = j
             If Me.Row = 0 Or Me.Row = 1 Or Me.Row = 6 Or Me.Row = 7 Then
                 Me.Occupied = True
             End If
-            Occupier = New Piece(InitialOccupier)
+            Occupier = New Piece(InitialOccupier, Me.Occupied)
         End Sub
         Public Function GetOccupier() As String
             Return Me.Occupier.GetSymbol()
         End Function
-        Public Function SelectSquare() As List(Of Integer())
+        Public Function SelectSquare() As Integer(,)
             If Occupied = True Then
                 Dim Owner As Boolean = Me.Occupier.GetOwner()
                 Dim Type As String = Me.Occupier.GetPieceType()
                 Dim HasMoved As Boolean = Me.Occupier.GetHasMoved()
-                Dim Target As New List(Of Integer())
-                Dim PosArr(2) As Integer
-                If Type = "king" Then
-                    For i = 0 To 7
-                        PosArr(0) = Me.Row + Module1.moves.King(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.King(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                ElseIf Type = "queen" Then
-                    For i = 0 To 55
-                        PosArr(0) = Me.Row + Module1.moves.Queen(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.Queen(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                ElseIf Type = "rook" Then
-                    For i = 0 To 27
-                        PosArr(0) = Me.Row + Module1.moves.Rook(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.Rook(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                ElseIf Type = "bishop" Then
-                    For i = 0 To 27
-                        PosArr(0) = Me.Row + Module1.moves.Bishop(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.Bishop(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                ElseIf Type = "knight" Then
-                    For i = 0 To 7
-                        PosArr(0) = Me.Row + Module1.moves.Knight(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.Knight(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                ElseIf Type = "pawn" And Owner = True And HasMoved = True Then
-                    PosArr(0) = Me.Row + Module1.moves.WhitePawn(0)
-                    PosArr(1) = Me.Column + Module1.moves.WhitePawn(1)
-                    Target.Add(PosArr)
-                ElseIf Type = "pawn" And Owner = False And HasMoved = True Then
-                    PosArr(0) = Me.Row + Module1.moves.BlackPawn(0)
-                    PosArr(1) = Me.Column + Module1.moves.BlackPawn(1)
-                    Target.Add(PosArr)
-                ElseIf Type = "pawn" And Owner = True And HasMoved = False Then
-                    For i = 0 To 1
-                        PosArr(0) = Me.Row + Module1.moves.UnmovedWhitePawn(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.UnmovedWhitePawn(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                ElseIf Type = "pawn" And Owner = True And HasMoved = False Then
-
-                    For i = 0 To 1
-                        PosArr(0) = Me.Row + Module1.moves.UnmovedBlackPawn(i, 0)
-                        PosArr(1) = Me.Column + Module1.moves.UnmovedBlackPawn(i, 1)
-                        Target.Add(PosArr)
-                    Next
-                End If
+                Dim Target As Integer(,) = movesa.GetSquare(Type, Owner, HasMoved, Me.Row, Me.Column)
                 Return Target
             Else
-                Dim NullTarget As New List(Of Integer())
-                Dim NullArr(2) As Integer
-                NullArr(0) = 8
-                NullArr(1) = 8
-                NullTarget.Add(NullArr)
+                Dim NullTarget As Integer(,) = {{9, 9}}
                 Return NullTarget
             End If
+        End Function
+        Public Function GetOccupied() As Boolean
+            Return Me.Occupied
+        End Function
+        Public Function GetOwner() As Boolean
+            Return Me.Occupier.GetOwner()
+        End Function
+        Public Function GetPieceType() As String
+            Return Me.Occupier.GetPieceType()
         End Function
     End Class
     Public Class Piece
@@ -141,7 +97,7 @@ Namespace Chess
         Private Type As String
         Private Symbol As String
         Private HasMoved As Boolean
-        Public Sub New(InitialSymbol As String)
+        Public Sub New(InitialSymbol As String, Exists As Boolean)
             Me.HasMoved = False
             Me.Symbol = InitialSymbol
             If Me.Symbol = "♔" Then
@@ -180,6 +136,9 @@ Namespace Chess
             ElseIf Me.Symbol = "♟︎" Then
                 Me.Owner = False
                 Me.Type = "pawn"
+            ElseIf Exists = True Then
+                Me.Owner = False
+                Me.Type = "pawn"
             Else
                 Me.Owner = False
                 Me.Type = "empty"
@@ -199,131 +158,201 @@ Namespace Chess
         End Function
     End Class
     Public Class Moves
-        Public King(8, 2) As Integer
-        Public Queen(56, 2) As Integer
-        Public Rook(28, 2) As Integer
-        Public Bishop(28, 2) As Integer
-        Public Knight(8, 2) As Integer
-        Public WhitePawn(2) As Integer
-        Public BlackPawn(2) As Integer
-        Public UnmovedWhitePawn(2, 2) As Integer
-        Public UnmovedBlackPawn(2, 2) As Integer
-        Public WhitePawnTake(2, 2) As Integer
-        Public BlackPawnTake(2, 2) As Integer
+        Private Dict As Dictionary(Of String, Integer(,))
         Public Sub New()
-            Me.KingMoves()
-            Me.QueenMoves()
-            Me.RookMoves()
-            Me.BishopMoves()
-            Me.KnightMoves()
-            Me.PawnMoves()
+            Dict = New Dictionary(Of String, Integer(,)) From {
+                {"king+-", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
+                {"king++", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
+                {"king--", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
+                {"king-+", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
+                {"queen+-", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
+                {"queen++", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
+                {"queen--", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
+                {"queen-+", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
+                {"rook+-", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
+                {"rook++", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
+                {"rook--", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
+                {"rook-+", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
+                {"bishop+-", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
+                {"bishop++", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
+                {"bishop--", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
+                {"bishop-+", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
+                {"knight+-", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
+                {"knight++", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
+                {"knight--", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
+                {"knight-+", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
+                {"pawn+-", {{1, 0}, {2, 0}}},
+                {"pawn++", {{1, 0}}},
+                {"pawn--", {{-1, 0}, {-2, 0}}},
+                {"pawn-+", {{-1, 0}}},
+                {"king+=", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
+                {"king-=", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
+                {"queen+=", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
+                {"queen-=", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
+                {"rook+=", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
+                {"rook-=", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
+                {"bishop+=", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
+                {"bishop-=", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
+                {"knight+=", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
+                {"knight-=", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
+                {"pawn+=", {{1, 1}, {1, -1}}},
+                {"pawn-=", {{-1, 1}, {-1, -1}}}
+            }
         End Sub
-        Public Sub KingMoves()
-            Me.King(0, 0) = 1
-            Me.King(0, 1) = 0
-            Me.King(1, 0) = 1
-            Me.King(1, 1) = 1
-            Me.King(2, 0) = 0
-            Me.King(2, 1) = 1
-            Me.King(3, 0) = -1
-            Me.King(3, 1) = 1
-            Me.King(4, 0) = -1
-            Me.King(4, 1) = 0
-            Me.King(5, 0) = -1
-            Me.King(5, 1) = -1
-            Me.King(6, 0) = 0
-            Me.King(6, 1) = -1
-            Me.King(7, 0) = 1
-            Me.King(7, 1) = -1
-        End Sub
-        Public Sub QueenMoves()
-            For i = 0 To 7
-                For j = 0 To 6
-                    For k = 0 To 1
-                        Me.Queen((7 * i) + j, k) = Me.King(i, k) * (j + 1)
-                    Next
+        Public Function GetSquare(Type As String, Owner As Boolean, HasMoved As Boolean, x As Integer, y As Integer) As Integer(,)
+            If Type = "queen" Then
+                Return Me.Queen(x, y)
+            ElseIf Type = "rook" Then
+                Return Me.Rook(x, y)
+            ElseIf Type = "bishop" Then
+                Return Me.Bishop(x, y)
+            Else
+                Dim key As String
+                key = Type
+                If Owner = True Then
+                    key += "+"
+                Else
+                    key += "-"
+                End If
+                If HasMoved = True Then
+                    key += "+"
+                Else
+                    key += "-"
+                End If
+                Dim SqVect As Integer(,) = Me.Dict(key)
+                Dim Target(SqVect.GetLength(0), 2) As Integer
+                For i = 0 To SqVect.GetLength(0) - 1
+                    Target(i, 0) = x + SqVect(i, 0)
+                    Target(i, 1) = y + SqVect(i, 1)
                 Next
+                Return Target
+            End If
+        End Function
+        Public Function Queen(x As Integer, y As Integer) As Integer(,)
+            Dim Target(14 + Me.DiagonalMoves(x, y), 2) As Integer
+            Dim j As Integer = 0
+            For i = 0 To 7
+                If i <> x Then
+                    Target(j, 0) = i
+                    Target(j, 1) = y
+                    j += 1
+                End If
             Next
-        End Sub
-        Public Sub RookMoves()
-            For i = 0 To 6
-                Me.Rook(i, 0) = i + 1
-                Me.Rook(i, 1) = 0
+            For i = 0 To 7
+                If i <> y Then
+                    Target(j, 0) = x
+                    Target(j, 1) = i
+                    j += 1
+                End If
             Next
-            For i = 0 To 6
-                Me.Rook(i + 7, 0) = 0
-                Me.Rook(i + 7, 1) = i + 1
+            For i = 1 To 7
+                If x + i < 8 And y + i < 8 Then
+                    Target(j, 0) = x + i
+                    Target(j, 1) = y + i
+                    j += 1
+                End If
             Next
-            For i = 0 To 6
-                Me.Rook(i + 14, 0) = -1 - i
-                Me.Rook(i + 14, 1) = 0
+            For i = 1 To 7
+                If x + i < 8 And y - i > -1 Then
+                    Target(j, 0) = x + i
+                    Target(j, 1) = y - i
+                    j += 1
+                End If
             Next
-            For i = 0 To 6
-                Me.Rook(i + 21, 0) = 0
-                Me.Rook(i + 21, 1) = -1 - i
+            For i = 1 To 7
+                If x - i > -1 And y + i < 8 Then
+                    Target(j, 0) = x - i
+                    Target(j, 1) = y + i
+                    j += 1
+                End If
             Next
-        End Sub
-        Public Sub BishopMoves()
-            For i = 0 To 6
-                Me.Bishop(i, 0) = i + 1
-                Me.Bishop(i, 1) = i + 1
+            For i = 1 To 7
+                If x - i > -1 And y - i > -1 Then
+                    Target(j, 0) = x - i
+                    Target(j, 1) = y - i
+                    j += 1
+                End If
             Next
-            For i = 0 To 6
-                Me.Bishop(i + 7, 0) = -1 - i
-                Me.Bishop(i + 7, 1) = i + 1
+            Return Target
+        End Function
+        Public Function Rook(x As Integer, y As Integer) As Integer(,)
+            Dim Target(14, 2) As Integer
+            Dim j As Integer = 0
+            For i = 0 To 7
+                If i <> x Then
+                    Target(j, 0) = i
+                    Target(j, 1) = y
+                    j += 1
+                End If
             Next
-            For i = 0 To 6
-                Me.Bishop(i + 14, 0) = -1 - i
-                Me.Bishop(i + 14, 1) = -1 - i
+            For i = 0 To 7
+                If i <> y Then
+                    Target(j, 0) = x
+                    Target(j, 1) = i
+                    j += 1
+                End If
             Next
-            For i = 0 To 6
-                Me.Bishop(i + 21, 0) = i + 1
-                Me.Bishop(i + 21, 1) = -1 - i
+            Return Target
+        End Function
+        Public Function Bishop(x As Integer, y As Integer) As Integer(,)
+            Dim Target(Me.DiagonalMoves(x, y), 2) As Integer
+            Dim j As Integer = 0
+            For i = 1 To 7
+                If x + i < 8 And y + i < 8 Then
+                    Target(j, 0) = x + i
+                    Target(j, 1) = y + i
+                    j += 1
+                End If
             Next
-        End Sub
-        Public Sub KnightMoves()
-            Me.Knight(0, 0) = 2
-            Me.Knight(0, 1) = 1
-            Me.Knight(1, 0) = 1
-            Me.Knight(1, 1) = 2
-            Me.Knight(2, 0) = -1
-            Me.Knight(2, 1) = 2
-            Me.Knight(3, 0) = -2
-            Me.Knight(3, 1) = 1
-            Me.Knight(4, 0) = -2
-            Me.Knight(4, 1) = -1
-            Me.Knight(5, 0) = -1
-            Me.Knight(5, 1) = -2
-            Me.Knight(6, 0) = 1
-            Me.Knight(6, 1) = -2
-            Me.Knight(7, 0) = 2
-            Me.Knight(7, 1) = -1
-        End Sub
-        Public Sub PawnMoves()
-            Me.WhitePawn(0) = 1
-            Me.WhitePawn(1) = 0
-            Me.BlackPawn(0) = -1
-            Me.BlackPawn(1) = 0
-            Me.UnmovedWhitePawn(0, 0) = 1
-            Me.UnmovedWhitePawn(0, 1) = 0
-            Me.UnmovedWhitePawn(1, 0) = 2
-            Me.UnmovedWhitePawn(1, 1) = 0
-            Me.UnmovedBlackPawn(0, 0) = -1
-            Me.UnmovedBlackPawn(0, 1) = 0
-            Me.UnmovedBlackPawn(1, 0) = -2
-            Me.UnmovedBlackPawn(1, 1) = 0
-            Me.WhitePawnTake(0, 0) = 1
-            Me.WhitePawnTake(0, 1) = 1
-            Me.WhitePawnTake(1, 0) = 1
-            Me.WhitePawnTake(1, 1) = -1
-            Me.BlackPawnTake(0, 0) = -1
-            Me.BlackPawnTake(0, 1) = -1
-            Me.BlackPawnTake(1, 0) = -1
-            Me.BlackPawnTake(1, 1) = 1
-        End Sub
+            For i = 1 To 7
+                If x + i < 8 And y - i > -1 Then
+                    Target(j, 0) = x + i
+                    Target(j, 1) = y - i
+                    j += 1
+                End If
+            Next
+            For i = 1 To 7
+                If x - i > -1 And y + i < 8 Then
+                    Target(j, 0) = x - i
+                    Target(j, 1) = y + i
+                    j += 1
+                End If
+            Next
+            For i = 1 To 7
+                If x - i > -1 And y - i > -1 Then
+                    Target(j, 0) = x - i
+                    Target(j, 1) = y - i
+                    j += 1
+                End If
+            Next
+            Return Target
+        End Function
+        Public Function DiagonalMoves(x As Integer, y As Integer) As Integer
+            Dim DistX As Integer
+            Dim DistY As Integer
+            Dim Dist As Integer
+            Dim NrDiagonalMoves As Integer
+            If x > 3 Then
+                DistX = 7 - x
+            Else
+                DistX = x
+            End If
+            If y > 3 Then
+                DistY = 7 - y
+            Else
+                DistY = y
+            End If
+            If DistX > DistY Then
+                Dist = DistY
+            Else
+                Dist = DistX
+            End If
+            NrDiagonalMoves = (2 * Dist) + 7
+            Return NrDiagonalMoves
+        End Function
     End Class
 End Namespace
 Module Module1
-    Public moves As New Chess.Moves
+    Public movesa As New Chess.Moves
     Public board As New Chess.Board
 End Module
