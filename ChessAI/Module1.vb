@@ -42,10 +42,24 @@ Namespace Chess
                 Dim Target As Integer(,)
                 Target = Me.Squares(x, y).SelectSquare()
                 For i = 0 To Target.GetLength(0) - 1
-                    Form1.Target({Target(i, 0), Target(i, 1)}, {x, y}, Me.Squares(x, y).GetPieceType(), Me.Squares(x, y).GetOwner())
+                    If Me.Squares(Target(i, 0), Target(i, 1)).GetOccupied() = True And Me.Squares(Target(i, 0), Target(i, 1)).GetOwner <> Me.Squares(x, y).GetOwner() Then
+                        Form1.EnemyTarget({Target(i, 0), Target(i, 1)}, {x, y}, Me.Squares(x, y).GetPieceType(), Me.Squares(x, y).GetOwner())
+                    ElseIf Me.Squares(Target(i, 0), Target(i, 1)).GetOccupied() = False Then
+                        Form1.EmptyTarget({Target(i, 0), Target(i, 1)}, {x, y}, Me.Squares(x, y).GetPieceType(), Me.Squares(x, y).GetOwner())
+                    End If
                 Next
+            ElseIf Me.SquareSelected = True Then
+                If Form1.GetColour(x, y) = "+" Then
+                    Me.Squares(x, y).Occupy(Me.Squares(Me.LastClickedX, Me.LastClickedY).GetOccupier)
+                    Me.Squares(Me.LastClickedX, Me.LastClickedY).Vacate()
+                    Form1.RefreshBoard()
+                    Me.SquareSelected = False
+                ElseIf Form1.GetColour(x, y) = "=" Then
+                    Form1.RefreshBoard()
+                    Me.SquareSelected = False
+                End If
             Else
-                Form1.GenerateBoard()
+                Form1.RefreshBoard()
                 Me.SquareSelected = False
             End If
         End Sub
@@ -82,6 +96,14 @@ Namespace Chess
                 Return NullTarget
             End If
         End Function
+        Public Sub Occupy(Symbol As String)
+            Me.Occupied = True
+            Me.Occupier.MoveTo(Symbol, True)
+        End Sub
+        Public Sub Vacate()
+            Me.Occupied = False
+            Me.Occupier.MoveTo(" ", False)
+        End Sub
         Public Function GetOccupied() As Boolean
             Return Me.Occupied
         End Function
@@ -99,7 +121,14 @@ Namespace Chess
         Private HasMoved As Boolean
         Public Sub New(InitialSymbol As String, Exists As Boolean)
             Me.HasMoved = False
-            Me.Symbol = InitialSymbol
+            Me.SetPiece(InitialSymbol, Exists)
+        End Sub
+        Public Sub MoveTo(Symbol As String, Exists As Boolean)
+            Me.HasMoved = True
+            Me.SetPiece(Symbol, Exists)
+        End Sub
+        Public Sub SetPiece(Symbol As String, Exists As Boolean)
+            Me.Symbol = Symbol
             If Me.Symbol = "♔" Then
                 Me.Owner = True
                 Me.Type = "king"
@@ -165,18 +194,6 @@ Namespace Chess
                 {"king++", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
                 {"king--", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
                 {"king-+", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
-                {"queen+-", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
-                {"queen++", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
-                {"queen--", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
-                {"queen-+", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
-                {"rook+-", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
-                {"rook++", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
-                {"rook--", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
-                {"rook-+", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
-                {"bishop+-", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
-                {"bishop++", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
-                {"bishop--", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
-                {"bishop-+", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
                 {"knight+-", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
                 {"knight++", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
                 {"knight--", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
@@ -185,16 +202,6 @@ Namespace Chess
                 {"pawn++", {{1, 0}}},
                 {"pawn--", {{-1, 0}, {-2, 0}}},
                 {"pawn-+", {{-1, 0}}},
-                {"king+=", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
-                {"king-=", {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}},
-                {"queen+=", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
-                {"queen-=", {{9, 0}, {9, 9}, {0, 9}, {-9, 9}, {-9, 0}, {-9, -9}, {0, -9}, {9, -9}}},
-                {"rook+=", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
-                {"rook-=", {{9, 0}, {0, 9}, {-9, 0}, {0, -9}}},
-                {"bishop+=", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
-                {"bishop-=", {{9, 9}, {-9, 9}, {-9, -9}, {9, -9}}},
-                {"knight+=", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
-                {"knight-=", {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}},
                 {"pawn+=", {{1, 1}, {1, -1}}},
                 {"pawn-=", {{-1, 1}, {-1, -1}}}
             }
@@ -222,8 +229,10 @@ Namespace Chess
                 Dim SqVect As Integer(,) = Me.Dict(key)
                 Dim Target(SqVect.GetLength(0), 2) As Integer
                 For i = 0 To SqVect.GetLength(0) - 1
-                    Target(i, 0) = x + SqVect(i, 0)
-                    Target(i, 1) = y + SqVect(i, 1)
+                    If x + SqVect(i, 0) > -1 And x + SqVect(i, 0) < 8 And y + SqVect(i, 1) > -1 And y + SqVect(i, 1) < 8 Then
+                        Target(i, 0) = x + SqVect(i, 0)
+                        Target(i, 1) = y + SqVect(i, 1)
+                    End If
                 Next
                 Return Target
             End If
